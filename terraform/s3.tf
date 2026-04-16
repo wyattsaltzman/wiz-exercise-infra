@@ -7,8 +7,7 @@ resource "aws_s3_bucket" "mongodb_backup" {
   force_destroy = true
 
   tags = {
-    Name    = "wiz-exercise-mongodb-backup"
-    Purpose = "MongoDB daily backups (intentionally public)"
+    Name = "wiz-exercise-mongodb-backup"
   }
 }
 
