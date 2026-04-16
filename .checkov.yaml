@@ -1,0 +1,29 @@
+# Checkov configuration for the Wiz Technical Exercise
+#
+# The following checks are skipped because they correspond to INTENTIONAL
+# misconfigurations required by the exercise specification.  Each skip is
+# documented with the reason so reviewers understand the deliberate trade-off.
+
+skip-check:
+  # --- S3 backup bucket (public read + listing — required by spec) ---
+  - CKV_AWS_20    # S3 bucket public read ACL
+  - CKV_AWS_57    # S3 bucket public write ACL
+  - CKV_AWS_53    # S3 bucket public access block
+  - CKV_AWS_54    # S3 block public policy
+  - CKV_AWS_55    # S3 bucket ignore public ACLs
+  - CKV_AWS_56    # S3 restrict public buckets
+  - CKV2_AWS_6    # S3 public access not blocked
+
+  # --- EC2 security group: SSH open to internet (required by spec) ---
+  - CKV_AWS_25    # Security group — SSH open
+
+  # --- IAM overly permissive role (required by spec) ---
+  - CKV_AWS_40    # IAM policy with wildcard Action
+  - CKV_AWS_275   # IAM policy document — wildcard resources
+
+  # --- EC2 IMDSv2 (acceptable trade-off for demo simplicity) ---
+  - CKV_AWS_79    # EC2 instance metadata v2 not enforced
+
+framework:
+  - terraform
+output: cli

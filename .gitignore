@@ -1,0 +1,24 @@
+# Terraform
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.backup
+*.tfplan
+tfplan
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# SSH keys (never commit private keys)
+keys/*.pem
+keys/mongodb
+!keys/mongodb.pub
+!keys/.gitkeep
+
+# Local env files
+*.env
+.env*
+
+# OS
+.DS_Store
