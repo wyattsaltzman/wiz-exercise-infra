@@ -1,9 +1,11 @@
 name: Terraform — Infrastructure CI/CD
 
 on:
-  workflow_dispatch:  # manual trigger only — re-add push/PR triggers once AWS is configured
+  push:
+    branches: [main]
   pull_request:
     branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -109,5 +111,5 @@ jobs:
             });
 
       - name: Terraform Apply
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         run: terraform apply -auto-approve tfplan
