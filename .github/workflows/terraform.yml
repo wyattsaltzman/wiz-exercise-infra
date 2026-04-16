@@ -1,8 +1,7 @@
 name: Terraform — Infrastructure CI/CD
 
 on:
-  push:
-    branches: [main]
+  workflow_dispatch:  # manual trigger only — re-add push/PR triggers once AWS is configured
   pull_request:
     branches: [main]
 
