@@ -62,7 +62,7 @@ sleep 10
 systemctl stop mongod
 
 # Temporarily start without auth to create users
-mongod --dbpath /var/lib/mongodb --noauth --fork --logpath /tmp/mongod-init.log
+sudo -u mongodb mongod --dbpath /var/lib/mongodb --noauth --fork --logpath /tmp/mongod-init.log
 
 sleep 5
 
@@ -87,7 +87,7 @@ print('Users created successfully');
 "
 
 # Shut down the temporary instance
-mongod --dbpath /var/lib/mongodb --shutdown
+sudo -u mongodb mongod --dbpath /var/lib/mongodb --shutdown
 
 # Restart with auth enabled
 systemctl start mongod
