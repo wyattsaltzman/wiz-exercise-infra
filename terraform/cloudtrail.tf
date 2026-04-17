@@ -40,9 +40,27 @@ data "aws_guardduty_detector" "main" {}
 
 # -----------------------------------------------------------------------
 # AWS Config — Preventative/detective control
-# CloudLabs pre-creates the configuration recorder, so we only manage
-# the Config rules here and attach them to the existing recorder.
+# CloudLabs pre-creates the configuration recorder but its IAM role is
+# broken. We create a working role here, then update the recorder via
+# AWS CLI after apply to point at it and restart it.
 # -----------------------------------------------------------------------
+resource "aws_iam_role" "config" {
+  name = "wiz-exercise-config-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Action    = "sts:AssumeRole"
+      Effect    = "Allow"
+      Principal = { Service = "config.amazonaws.com" }
+    }]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "config" {
+  role       = aws_iam_role.config.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWS_ConfigRole"
+}
 
 # Managed Config rule: detect public S3 buckets (flags the backup bucket)
 resource "aws_config_config_rule" "s3_bucket_public_read" {
