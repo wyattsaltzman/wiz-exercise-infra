@@ -36,9 +36,9 @@ jobs:
           directory: terraform/
           framework: terraform
           output_format: cli
-          # soft_fail allows the pipeline to continue despite intentional weaknesses.
-          # All findings are still surfaced in the output for the demo.
-          soft_fail: true
+          # Intentional weaknesses are skipped via .checkov.yaml skip_checks.
+          # Any finding NOT in the skip list will fail the job and block deploy.
+          soft_fail: false
           download_external_modules: false
 
   # -----------------------------------------------------------------------
