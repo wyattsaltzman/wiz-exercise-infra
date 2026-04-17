@@ -8,6 +8,10 @@ resource "aws_cloudtrail" "main" {
   is_multi_region_trail         = true
   enable_log_file_validation    = true
 
+  # Stream events to CloudWatch Logs for real-time alerting
+  cloud_watch_logs_group_arn = "${aws_cloudwatch_log_group.cloudtrail.arn}:*"
+  cloud_watch_logs_role_arn  = aws_iam_role.cloudtrail_cloudwatch.arn
+
   event_selector {
     read_write_type           = "All"
     include_management_events = true
@@ -25,10 +29,38 @@ resource "aws_cloudtrail" "main" {
   }
 }
 
-# CloudWatch log group for CloudTrail events
+# CloudWatch log group for CloudTrail events — 1-year retention per CIS benchmark
 resource "aws_cloudwatch_log_group" "cloudtrail" {
   name              = "/aws/cloudtrail/wiz-exercise"
-  retention_in_days = 30
+  retention_in_days = 365
+}
+
+# IAM role allowing CloudTrail to write to CloudWatch Logs
+resource "aws_iam_role" "cloudtrail_cloudwatch" {
+  name = "wiz-exercise-cloudtrail-cloudwatch"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Action    = "sts:AssumeRole"
+      Effect    = "Allow"
+      Principal = { Service = "cloudtrail.amazonaws.com" }
+    }]
+  })
+}
+
+resource "aws_iam_role_policy" "cloudtrail_cloudwatch" {
+  name = "wiz-exercise-cloudtrail-cloudwatch"
+  role = aws_iam_role.cloudtrail_cloudwatch.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect   = "Allow"
+      Action   = ["logs:CreateLogStream", "logs:PutLogEvents"]
+      Resource = "${aws_cloudwatch_log_group.cloudtrail.arn}:*"
+    }]
+  })
 }
 
 # -----------------------------------------------------------------------

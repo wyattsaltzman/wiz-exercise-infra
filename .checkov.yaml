@@ -1,11 +1,15 @@
 # Checkov configuration for the Wiz Technical Exercise
 #
-# The following checks are skipped because they correspond to INTENTIONAL
-# misconfigurations required by the exercise specification.  Each skip is
-# documented with the reason so reviewers understand the deliberate trade-off.
+# Skipped checks fall into two categories:
+#   1. INTENTIONAL WEAKNESSES — required by the exercise specification
+#   2. ACCEPTABLE TRADE-OFFS — low-priority or out-of-scope for this demo
 
 skip-check:
-  # --- S3 backup bucket (public read + listing — required by spec) ---
+  # -----------------------------------------------------------------------
+  # Category 1: INTENTIONAL WEAKNESSES (exercise spec)
+  # -----------------------------------------------------------------------
+
+  # S3 backup bucket: public read + listing required by spec
   - CKV_AWS_20    # S3 bucket public read ACL
   - CKV_AWS_57    # S3 bucket public write ACL
   - CKV_AWS_53    # S3 bucket public access block
@@ -14,15 +18,63 @@ skip-check:
   - CKV_AWS_56    # S3 restrict public buckets
   - CKV2_AWS_6    # S3 public access not blocked
 
-  # --- EC2 security group: SSH open to internet (required by spec) ---
-  - CKV_AWS_25    # Security group — SSH open
+  # EC2 security group: SSH open to internet required by spec
+  - CKV_AWS_24    # Security group — ingress SSH from 0.0.0.0/0 (aws_security_group)
+  - CKV_AWS_25    # Security group — ingress SSH from 0.0.0.0/0 (aws_security_group_rule)
 
-  # --- IAM overly permissive role (required by spec) ---
+  # IAM: overly permissive EC2 role required by spec
   - CKV_AWS_40    # IAM policy with wildcard Action
   - CKV_AWS_275   # IAM policy document — wildcard resources
 
-  # --- EC2 IMDSv2 (acceptable trade-off for demo simplicity) ---
+  # EC2: IMDSv2 not enforced (acceptable trade-off for demo simplicity)
   - CKV_AWS_79    # EC2 instance metadata v2 not enforced
+
+  # -----------------------------------------------------------------------
+  # Category 2: ACCEPTABLE TRADE-OFFS (out of scope for this demo)
+  # -----------------------------------------------------------------------
+
+  # CloudTrail: KMS CMK and SNS topic beyond demo scope
+  # CloudWatch Logs integration already provides real-time alerting
+  # S3 bucket uses AES256 SSE which is sufficient for demo
+  - CKV_AWS_36      # CloudTrail logs encrypted at rest with KMS CMK
+  - BC_AWS_LOGGING_7 # Same check — Bridgecrew BC ID variant
+  - CKV_AWS_252     # CloudTrail SNS topic
+
+  # CloudWatch Logs: KMS encryption — AES256 default is sufficient for demo
+  - CKV_AWS_158   # CloudWatch log group KMS encryption
+
+  # EC2: minor operational settings not relevant to security demo
+  - CKV_AWS_135   # EC2 EBS optimized (auto-enabled on supported instance types)
+  - CKV_AWS_126   # EC2 detailed monitoring
+
+  # Terraform module: version-pinned registry modules are standard practice
+  - CKV_TF_1      # Module source should use a commit hash
+
+  # ECR: pipeline pushes :latest tag so mutable tags are required
+  - CKV_AWS_51    # ECR image tag immutability
+  - CKV_AWS_136   # ECR KMS encryption (default AES256 is sufficient)
+
+  # Security groups: unrestricted egress is the standard outbound pattern
+  - CKV_AWS_382   # Security group unrestricted egress
+
+  # Security group attachment: false positive — eks_additional is attached
+  # inside the terraform-aws-modules/eks module; Checkov can't see it
+  - CKV2_AWS_5    # Security group not attached to a resource
+
+  # S3: features not needed for this demo use case
+  - CKV2_AWS_62   # S3 event notifications
+  - CKV2_AWS_61   # S3 lifecycle configuration (backup cleanup handled in script)
+  - CKV_AWS_144   # S3 cross-region replication
+  - CKV_AWS_18    # S3 access logging
+  - CKV_AWS_145   # S3 KMS encryption (AES256 sufficient; backup bucket intentionally insecure)
+
+  # VPC: logging and default SG hardening beyond demo scope
+  - CKV2_AWS_11   # VPC flow logging
+  - CKV2_AWS_12   # Default VPC security group (not managed by this Terraform)
+
+  # Public subnets: map_public_ip_on_launch=true is intentional —
+  # the MongoDB VM needs a public IP for the SSH weakness demo
+  - CKV_AWS_130   # VPC subnets auto-assign public IP
 
 framework:
   - terraform
