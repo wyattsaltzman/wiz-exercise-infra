@@ -36,8 +36,9 @@ skip-check:
   # CloudTrail: KMS CMK and SNS topic beyond demo scope
   # CloudWatch Logs integration already provides real-time alerting
   # S3 bucket uses AES256 SSE which is sufficient for demo
-  - CKV_AWS_36    # CloudTrail logs encrypted at rest with KMS CMK
-  - CKV_AWS_252   # CloudTrail SNS topic
+  - CKV_AWS_36      # CloudTrail logs encrypted at rest with KMS CMK
+  - BC_AWS_LOGGING_7 # Same check — Bridgecrew BC ID variant
+  - CKV_AWS_252     # CloudTrail SNS topic
 
   # CloudWatch Logs: KMS encryption — AES256 default is sufficient for demo
   - CKV_AWS_158   # CloudWatch log group KMS encryption
